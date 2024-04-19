@@ -35,14 +35,14 @@ class VisaApplicationContract extends Contract {
 
     constructor() {
         // Unique namespace when multiple contracts per chaincode file
-        super('org.papernet.commercialpaper');
+        super('org.visanet.visaapp');
     }
 
     /**
-     * Define a custom context for commercial paper
+     * Define a custom context for visa app
     */
     createContext() {
-        return new CommercialPaperContext();
+        return new VisaApplicationContext();
     }
 
     /**
@@ -56,35 +56,33 @@ class VisaApplicationContract extends Contract {
     }
 
     /**
-     * Issue commercial paper
+     * Visa application submit
      *
      * @param {Context} ctx the transaction context
-     * @param {String} issuer commercial paper issuer
-     * @param {Integer} paperNumber paper number for this issuer
-     * @param {String} issueDateTime paper issue date
-     * @param {String} maturityDateTime paper maturity date
-     * @param {Integer} faceValue face value of paper
+     * @param {String} submitter who submit the application (typically an agency on behalf of their customers)
+     * @param {Integer} applicationNumber application number for this submitter
+     * @param {String} submissionDateTime submission date
     */
-    async issue(ctx, issuer, paperNumber, issueDateTime, maturityDateTime, faceValue) {
+    async appsubmit(ctx, submitter, applicationNumber, submissionDateTime) {
 
-        // create an instance of the paper
-        let paper = CommercialPaper.createInstance(issuer, paperNumber, issueDateTime, maturityDateTime, parseInt(faceValue));
+        // create an instance of the contract
+        let visaApp = VisaApplication.createInstance(submitter, applicationNumber, submissionDateTime);
 
-        // Smart contract, rather than paper, moves paper into ISSUED state
-        paper.setIssued();
+        // Smart contract, moves application into New state
+        visaApp.setNew();
 
         // save the owner's MSP 
         let mspid = ctx.clientIdentity.getMSPID();
-        paper.setOwnerMSP(mspid);
+        visaApp.setOwnerMSP(mspid);
 
-        // Newly issued paper is owned by the issuer to begin with (recorded for reporting purposes)
-        paper.setOwner(issuer);
+        // Newly issued application is owned by the submitter to begin with (recorded for reporting purposes)
+        visaApp.setOwner(submitter);
 
         // Add the paper to the list of all similar commercial papers in the ledger world state
-        await ctx.paperList.addPaper(paper);
+        await ctx.visaApplicationList.addVisaApplication(visaApp);
 
         // Must return a serialized paper to caller of smart contract
-        return paper;
+        return visaApp;
     }
 
     /**
