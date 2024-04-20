@@ -15,7 +15,7 @@ const VisaApplicationList = require('./visaapplist.js');
 const QueryUtils = require('./queries.js');
 
 /**
- * A custom context provides easy access to list of all commercial papers
+ * A custom context provides easy access to list of all visa applications
  */
 class VisaApplicationContext extends Context {
 
@@ -78,10 +78,10 @@ class VisaApplicationContract extends Contract {
         // Newly issued application is owned by the submitter to begin with (recorded for reporting purposes)
         visaApp.setOwner(submitter);
 
-        // Add the paper to the list of all similar commercial papers in the ledger world state
+        // Add the application to the list of all similar cvisa applications in the ledger world state
         await ctx.visaApplicationList.addVisaApplication(visaApp);
 
-        // Must return a serialized paper to caller of smart contract
+        // Must return a serialized application to caller of smart contract
         return visaApp;
     }
 
@@ -244,59 +244,59 @@ class VisaApplicationContract extends Contract {
     // Query transactions
 
     /**
-     * Query history of a commercial paper
+     * Query history of a visa application
      * @param {Context} ctx the transaction context
-     * @param {String} issuer commercial paper issuer
-     * @param {Integer} paperNumber paper number for this issuer
+     * @param {String} submitter who has submitted the application (VisaWorld)
+     * @param {Integer} applicationNumber application number
     */
-    async queryHistory(ctx, issuer, paperNumber) {
+    async queryHistory(ctx, submitter, applicationNumber) {
 
         // Get a key to be used for History query
 
-        let query = new QueryUtils(ctx, 'org.papernet.paper');
-        let results = await query.getAssetHistory(issuer, paperNumber); // (cpKey);
+        let query = new QueryUtils(ctx, 'org.visanet.visaapp');
+        let results = await query.getAssetHistory(submitter, applicationNumber); // (ledgerKey);
         return results;
 
     }
 
     /**
-    * queryOwner commercial paper: supply name of owning org, to find list of papers based on owner field
+    * queryOwner visa application: supply name of owning org, to find list of applications based on owner field
     * @param {Context} ctx the transaction context
-    * @param {String} owner commercial paper owner
+    * @param {String} owner visa application owner
     */
     async queryOwner(ctx, owner) {
 
-        let query = new QueryUtils(ctx, 'org.papernet.paper');
+        let query = new QueryUtils(ctx, 'org.visanet.visaapp');
         let owner_results = await query.queryKeyByOwner(owner);
 
         return owner_results;
     }
 
     /**
-    * queryPartial commercial paper - provide a prefix eg. "DigiBank" will list all papers _issued_ by DigiBank etc etc
+    * queryPartial visa application - provide a prefix eg. "VisaWorld" will list all applications _submitted_ by VisaWorld agency
     * @param {Context} ctx the transaction context
-    * @param {String} prefix asset class prefix (added to paperlist namespace) eg. org.papernet.paperMagnetoCorp asset listing: papers issued by MagnetoCorp.
+    * @param {String} prefix asset class prefix (added to visaApplist namespace) eg. org.visanet.visaappVisaWorld asset listing: applications submitted by VisaWorld.
     */
     async queryPartial(ctx, prefix) {
 
-        let query = new QueryUtils(ctx, 'org.papernet.paper');
+        let query = new QueryUtils(ctx, 'org.visanet.visaapp');
         let partial_results = await query.queryKeyByPartial(prefix);
 
         return partial_results;
     }
 
     /**
-    * queryAdHoc commercial paper - supply a custom mango query
+    * queryAdHoc visa applications - supply a custom mongo query
     * eg - as supplied as a param:     
-    * ex1:  ["{\"selector\":{\"faceValue\":{\"$lt\":8000000}}}"]
-    * ex2:  ["{\"selector\":{\"faceValue\":{\"$gt\":4999999}}}"]
+    * ex1:  ["{\"selector\":{\"applicationNumber\":{\"$eq\":00001}}}"]
+    * ex2:  ["{\"selector\":{\"submitter\":{\"$eq\":VisaWorld}}}"]
     * 
     * @param {Context} ctx the transaction context
     * @param {String} queryString querystring
     */
     async queryAdhoc(ctx, queryString) {
 
-        let query = new QueryUtils(ctx, 'org.papernet.paper');
+        let query = new QueryUtils(ctx, 'org.visanet.visaapp');
         let querySelector = JSON.parse(queryString);
         let adhoc_results = await query.queryByAdhoc(querySelector);
 
@@ -305,28 +305,39 @@ class VisaApplicationContract extends Contract {
 
 
     /**
-     * queryNamed - supply named query - 'case' statement chooses selector to build (pre-canned for demo purposes)
+     * queryNamed - supply named query - 'case' statement chooses selector to build
      * @param {Context} ctx the transaction context
      * @param {String} queryname the 'named' query (built here) - or - the adHoc query string, provided as a parameter
      */
     async queryNamed(ctx, queryname) {
         let querySelector = {};
         switch (queryname) {
-            case "redeemed":
-                querySelector = { "selector": { "currentState": 4 } };  // 4 = redeemd state
+            case "approved":
+                querySelector = { "selector": { "currentState": 6 } };  // 6 = approved state
                 break;
-            case "trading":
-                querySelector = { "selector": { "currentState": 3 } };  // 3 = trading state
+            case "declined":
+                querySelector = { "selector": { "currentState": 7 } };  // 7 = declined state
                 break;
-            case "value":
-                // may change to provide as a param - fixed value for now in this sample
-                querySelector = { "selector": { "faceValue": { "$gt": 4000000 } } };  // to test, issue CommPapers with faceValue <= or => this figure.
+            case "new":
+                querySelector = { "selector": { "currentState": 1 } };
+                break;
+            case "docschkpassed":
+                querySelector = { "selector": { "currentState": 2 } };
+                break;
+            case "docschkfailed":
+                querySelector = { "selector": { "currentState": 3 } };
+                break;
+            case "historychkpassed":
+                querySelector = { "selector": { "currentState": 4 } };
+                break;
+            case "historychkfailed":
+                querySelector = { "selector": { "currentState": 5 } };
                 break;
             default: // else, unknown named query
                 throw new Error('invalid named query supplied: ' + queryname + '- please try again ');
         }
 
-        let query = new QueryUtils(ctx, 'org.papernet.paper');
+        let query = new QueryUtils(ctx, 'org.visanet.visaapp');
         let adhoc_results = await query.queryByAdhoc(querySelector);
 
         return adhoc_results;
