@@ -27,19 +27,19 @@ const visaState = {
 class VisaApp extends State {
 
     constructor(obj) {
-        super(VisaApp.getClass(), [obj.issuer, obj.applicationNumber]);
+        super(VisaApp.getClass(), [obj.submitter, obj.applicationNumber]);
         Object.assign(this, obj);
     }
 
     /**
      * Basic getters and setters
     */
-    getIssuer() {
-        return this.issuer;
+    getSubmitter() {
+        return this.submitter;
     }
 
-    setIssuer(newIssuer) {
-        this.issuer = newIssuer;
+    setSubmitter(newSubmitter) {
+        this.submitter = newSubmitter;
     }
 
     getOwner() {
@@ -136,8 +136,8 @@ class VisaApp extends State {
     /**
      * Factory method to create a visa application object
      */
-    static createInstance(issuer, applicationNumber, issueDateTime, maturityDateTime, faceValue) {
-        return new VisaApp({ issuer, applicationNumber, issueDateTime, maturityDateTime, faceValue });
+    static createInstance(submitter, applicationNumber, submissionDateTime) {
+        return new VisaApp({ submitter, applicationNumber, submissionDateTime });
     }
 
     static getClass() {

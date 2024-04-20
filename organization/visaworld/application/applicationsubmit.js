@@ -66,7 +66,7 @@ async function main() {
         // submit visa application
         console.log('Submit visa application transaction.');
 
-        const appSubmitResponse = await contract.submitTransaction('appsubmit', 'VisaWorld', '00001', '2020-05-31', '2020-11-30');
+        const appSubmitResponse = await contract.submitTransaction('appsubmit', 'VisaWorld', '00001', '2024-05-01');
 
         // process response
         console.log('Process application submission transaction response.'+appSubmitResponse);
