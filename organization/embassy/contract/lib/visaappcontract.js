@@ -204,45 +204,12 @@ class VisaApplicationContract extends Contract {
      * Approve Visa Application
      *
      * @param {Context} ctx the transaction context
-     * @param {String} submitter application submitter, VisaWorld
+     * @param {String} submitterOrg application submitter, VisaWorld
      * @param {Integer} applicationNumber application number
-     * @param {String} approvingOwner approving entity
-     * @param {String} issuingOwnerMSP the MSP of the org that the paper will be redeemed with.
+     * @param {String} approvingOrgMSP approving entity
+     * @param {String} applicationSubmitterMSP the MSP of the org that the paper will be redeemed with.
      * @param {String} approvingDateTime time application was approved
     */
-    // async approve(ctx, submitter, applicationNumber, approvingOwner, issuingOwnerMSP, approvingDateTime) {
-
-    //     let applicationKey = VisaApplication.makeKey([submitter, applicationNumber]);
-
-    //     let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
-
-    //     let mspid = ctx.clientIdentity.getMSPID();
-
-    //     // Check application is not already in final decision i.e. approved/declined
-    //     if (visaApplication.isApproved() || visaApplication.isDeclined()) {
-    //         throw new Error('\nDecision is already given on Visa application ' + submitter + applicationNumber + ' Final decision: ' + visaApplication.currentState);
-    //     }
-
-
-    //     // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Embassy
-    //     //let mspid = ctx.clientIdentity.getMSPID();
-    //     if (approvingOwner !== mspid) {
-    //         throw new Error('\nApplication ' + submitter + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
-    //     }
-
-    //     // As this is just a sample, can show additional verification check: that the redeemer provided matches that on record, before redeeming it
-    //     if (visaApplication.getOwner() === submitter) {
-    //         visaApplication.setOwner(approvingOwner);
-    //         visaApplication.setOwnerMSP(mspid); // setting embassy
-    //         visaApplication.setApproved();
-    //         visaApplication.approvingDateTime = approvingDateTime; // record redemption date against the asset (the complement to 'issue date')
-    //     } else {
-    //         throw new Error('\nowner: ' + submitter + ' organisation does not currently own application: ' + submitter + applicationNumber);
-    //     }
-
-    //     await ctx.visaApplicationList.updateVisaApplication(visaApplication);
-    //     return visaApplication;
-    // }
     async approve(ctx, submitterOrg, applicationNumber, approvingOrgMSP, applicationSubmitterMSP, approvingDateTime) {
 
         console.log('>>>>>>>>> vinit >>>>>>>> Inside approve() :', submitterOrg);
