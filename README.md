@@ -1,6 +1,15 @@
 [//]: # (SPDX-License-Identifier: CC-BY-4.0)
 
-# Hyperledger Fabric Visa App
+## Hyperledger Fabric Visa App
+
+# Mission Statement:"
+Our mission is to develop VisaChain, a cutting-edge blockchain-based visa processing system, to streamline the visa application process, enhance security and privacy, and ensure compliance with regulatory requirements. By providing a trusted platform for collaboration among stakeholders, VisaChain aims to simplify visa processing, promote tourism and business travel, and facilitate cross-border mobility in a rapidly evolving global landscape."
+
+In this demo application, We will have a minimum of 3 orgs representing 3 different parties interested in performing this use-case.
+
+1. Embassy/Consulate/Immigration department: Allowing a legal process for a foreign national to visit the country. (Visa - law), Verifying the documentations with the embassy to make the visa decision. 
+2. Police: Background checks, Criminal history check, Verification etc.
+3. VISA application agencies: Submitting the applications on behalf of travellers seeking permission to visit.
 
 ## Test network
 
@@ -80,3 +89,7 @@ Further, a few bash scripts have also been written for the ease of operations as
     > cd /Users/vinit/go/src/visa-app/organization/visaworld/application
     > node addToWallet.js
     > node queryapp.js
+
+## commands to shut down the network
+    > cd /Users/vinit/go/src/visa-app
+    > ./network-clean.sh
