@@ -2,9 +2,9 @@
   "name": "nodejs",
   "version": "1.0.0",
   "description": "",
-  "main": "approvevisa.js",
+  "main": "visaApprove.js",
   "scripts": {
-    "test": "rm -rf _idwallet && node addToWallet.js && node approvevisa.js"
+    "test": "rm -rf _idwallet && node addToWallet.js && node visaApprove.js"
   },
   "keywords": [],
   "author": "",

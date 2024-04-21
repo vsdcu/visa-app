@@ -62,16 +62,52 @@ peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSH
 echo "Step 14: Checking readiness..."
 peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name visaappcontract -v 0 --sequence 1
 
-echo "Step 15: Committing to fabric as Embassy..."
+
+# Running in Police org:
+
+echo "Step 15: Navigating to Police directory..."
+cd /Users/vinit/go/src/visa-app/organization/police
+
+echo "Step 16: Sourcing the police.sh script..."
+source police.sh
+
+echo "Step 17: Packaging the chaincode on peer..."
+peer lifecycle chaincode package cp.tar.gz --lang node --path ./contract --label cp_0
+
+echo "Step 18: Installing the chaincode on peer..."
+peer lifecycle chaincode install cp.tar.gz
+
+echo "Step 19: Fetching the chaincode ID..."
+export PACKAGE_ID=$(peer lifecycle chaincode queryinstalled --output json | jq -r '.installed_chaincodes[0].package_id')
+echo "Chaincode ID: $PACKAGE_ID"
+
+echo "Step 20: Approving the chaincode..."
+peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
+                                          --channelID mychannel  \
+                                          --name visaappcontract  \
+                                          -v 0  \
+                                          --package-id $PACKAGE_ID \
+                                          --sequence 1  \
+                                          --tls  \
+                                          --cafile "$ORDERER_CA"
+
+echo "Step 21: Checking readiness..."
+peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name visaappcontract -v 0 --sequence 1
+
+
+# Committing chaincode visacontract to fabric
+
+echo "Step 22: Committing to fabric as Police..."
 peer lifecycle chaincode commit -o localhost:7050 \
                                 --peerAddresses localhost:7051 --tlsRootCertFiles "${PEER0_ORG1_CA}" \
                                 --peerAddresses localhost:9051 --tlsRootCertFiles "${PEER0_ORG2_CA}" \
+                                --peerAddresses localhost:11051 --tlsRootCertFiles "${PEER0_ORG3_CA}" \
                                 --ordererTLSHostnameOverride orderer.example.com \
                                 --channelID mychannel --name visaappcontract -v 0 \
                                 --sequence 1 \
                                 --tls --cafile "$ORDERER_CA" --waitForEvent
 
-echo "Step 16: Invoking chaincode..."
+echo "Step 23: Invoking chaincode..."
 peer chaincode invoke -o localhost:7050  --ordererTLSHostnameOverride orderer.example.com \
                                 --peerAddresses localhost:7051 --tlsRootCertFiles "${PEER0_ORG1_CA}" \
                                 --peerAddresses localhost:9051 --tlsRootCertFiles "${PEER0_ORG2_CA}" \
@@ -79,7 +115,7 @@ peer chaincode invoke -o localhost:7050  --ordererTLSHostnameOverride orderer.ex
                                 -c '{"Args":["org.visanet.visaapp:instantiate"]}' ${PEER_ADDRESS_ORG1} ${PEER_ADDRESS_ORG2} \
                                 --tls --cafile "$ORDERER_CA" --waitForEvent
 
-echo "Step 17: Printing chaincode metadata..."
+echo "Step 24: Printing chaincode metadata..."
 peer chaincode query -o localhost:7050  --ordererTLSHostnameOverride orderer.example.com \
                                         --channelID mychannel \
                                         --name visaappcontract \
@@ -87,7 +123,7 @@ peer chaincode query -o localhost:7050  --ordererTLSHostnameOverride orderer.exa
                                         --peerAddresses localhost:9051 --tlsRootCertFiles "${PEER0_ORG2_CA}" \
                                         --tls --cafile "$ORDERER_CA" | jq '.' -C
 
-echo "Step 18: Starting logs monitoring thread..."
+echo "Step 25: Starting logs monitoring thread..."
 cd /Users/vinit/go/src/visa-app/organization/visaworld/configuration/cli
 ./monitordocker.sh fabric_test
 

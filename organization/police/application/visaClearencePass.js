@@ -27,7 +27,7 @@ const visaapp = require('../contract/lib/visaapp.js');
 async function main() {
 
   // A wallet stores a collection of identities for use
-  const wallet = await Wallets.newFileSystemWallet('../identity/user/balaji/wallet');
+  const wallet = await Wallets.newFileSystemWallet('../identity/user/vinit/wallet');
 
 
   // A gateway defines the peers used to access Fabric networks
@@ -38,10 +38,10 @@ async function main() {
 
     // Specify userName for network access
         // Specify userName for network access
-        const userName = 'balaji';
+        const userName = 'vinit';
 
     // Load connection profile; will be used to locate a gateway
-    let connectionProfile = yaml.safeLoad(fs.readFileSync('../gateway/connection-org1.yaml', 'utf8'));
+    let connectionProfile = yaml.safeLoad(fs.readFileSync('../gateway/connection-org3.yaml', 'utf8'));
 
     // Set connection options; identity and wallet
     let connectionOptions = {
@@ -66,16 +66,19 @@ async function main() {
     const contract = await network.getContract('visaappcontract', 'org.visanet.visaapp');
 
     // approved visa application
-    console.log('Submit visa application approved transaction.');
+    console.log('Submit visa application police clearence transaction.');
 
-    const approvedResponse = await contract.submitTransaction('approve', 'VisaWorld', '00001', 'Org1MSP', 'Org2MSP', '2020-11-30'); // need to fix the params
+    // previousMSP should be Org2MSP (VisaWorld) before application reach the history check stage.
+    // this check make sure VisaWorld org had the last ownership of this appliocation. 
+    // TODO: In future iteraations we might introduced another Org for docs checks, Biomatric checks, so previoudMSP would be useful here to link the previous ownerships.
+    const historyChkResponse = await contract.submitTransaction('historycheckpass', 'VisaWorld', '00001', 'Org3MSP', 'Org2MSP', '2020-11-30'); // async historycheckpass(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime)
 
     // process response
-    console.log('Process approved transaction response.');
+    console.log('Process historyChkResponse transaction response.');
 
-    let visa = visaapp.fromBuffer(approvedResponse);
+    let visa = visaapp.fromBuffer(historyChkResponse);
 
-    console.log(`${visa.submitter} visa application : ${visa.applicationNumber} successfully approveded by ${visa.owner}`);
+    console.log(`${visa.submitter} visa application : ${visa.applicationNumber} successfully historyChk by ${visa.owner}`);
 
     console.log('Transaction complete.');
 

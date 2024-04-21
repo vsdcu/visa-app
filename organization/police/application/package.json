@@ -2,9 +2,9 @@
   "name": "nodejs",
   "version": "1.0.0",
   "description": "",
-  "main": "visaApplication.js",
+  "main": "visaClearencePass.js",
   "scripts": {
-    "test": "rm -rf _idwallet && node addToWallet.js && node visaApplication.js"
+    "test": "rm -rf _idwallet && node addToWallet.js && node visaClearencePass.js"
   },
   "keywords": [],
   "author": "",
