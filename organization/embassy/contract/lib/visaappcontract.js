@@ -201,46 +201,94 @@ class VisaApplicationContract extends Contract {
     }
 
     /**
-     * Redeem commercial paper
+     * Approve Visa Application
      *
      * @param {Context} ctx the transaction context
-     * @param {String} issuer commercial paper issuer
-     * @param {Integer} paperNumber paper number for this issuer
-     * @param {String} redeemingOwner redeeming owner of paper
+     * @param {String} submitter application submitter, VisaWorld
+     * @param {Integer} applicationNumber application number
+     * @param {String} approvingOwner approving entity
      * @param {String} issuingOwnerMSP the MSP of the org that the paper will be redeemed with.
-     * @param {String} redeemDateTime time paper was redeemed
+     * @param {String} approvingDateTime time application was approved
     */
-    async redeem(ctx, issuer, paperNumber, redeemingOwner, issuingOwnerMSP, redeemDateTime) {
+    // async approve(ctx, submitter, applicationNumber, approvingOwner, issuingOwnerMSP, approvingDateTime) {
 
-        let paperKey = CommercialPaper.makeKey([issuer, paperNumber]);
+    //     let applicationKey = VisaApplication.makeKey([submitter, applicationNumber]);
 
-        let paper = await ctx.paperList.getPaper(paperKey);
+    //     let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        // Check paper is not alread in a state of REDEEMED
-        if (paper.isRedeemed()) {
-            throw new Error('\nPaper ' + issuer + paperNumber + ' has already been redeemed');
+    //     let mspid = ctx.clientIdentity.getMSPID();
+
+    //     // Check application is not already in final decision i.e. approved/declined
+    //     if (visaApplication.isApproved() || visaApplication.isDeclined()) {
+    //         throw new Error('\nDecision is already given on Visa application ' + submitter + applicationNumber + ' Final decision: ' + visaApplication.currentState);
+    //     }
+
+
+    //     // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Embassy
+    //     //let mspid = ctx.clientIdentity.getMSPID();
+    //     if (approvingOwner !== mspid) {
+    //         throw new Error('\nApplication ' + submitter + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+    //     }
+
+    //     // As this is just a sample, can show additional verification check: that the redeemer provided matches that on record, before redeeming it
+    //     if (visaApplication.getOwner() === submitter) {
+    //         visaApplication.setOwner(approvingOwner);
+    //         visaApplication.setOwnerMSP(mspid); // setting embassy
+    //         visaApplication.setApproved();
+    //         visaApplication.approvingDateTime = approvingDateTime; // record redemption date against the asset (the complement to 'issue date')
+    //     } else {
+    //         throw new Error('\nowner: ' + submitter + ' organisation does not currently own application: ' + submitter + applicationNumber);
+    //     }
+
+    //     await ctx.visaApplicationList.updateVisaApplication(visaApplication);
+    //     return visaApplication;
+    // }
+    async approve(ctx, submitterOrg, applicationNumber, approvingOrgMSP, applicationSubmitterMSP, approvingDateTime) {
+
+        console.log('>>>>>>>>> vinit >>>>>>>> Inside approve() :', submitterOrg);
+
+        let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
+    
+        let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
+    
+        console.log('>>>>>>>>> vinit >>>>>>>> visaApplication fetched :', visaApplication);
+   
+        // Check application is not already in final decision i.e. approved/declined
+        if (visaApplication.isApproved() || visaApplication.isDeclined()) {
+            console.log('Decision is already given on Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
+            throw new Error('\nDecision is already given on Visa application ' + submitterOrg + applicationNumber + ' Final decision: ' + visaApplication.currentState);
         }
 
-        // Validate current redeemer's MSP matches the invoking redeemer's MSP id - can only redeem if you are the owning org.
+        let mspid = ctx.clientIdentity.getMSPID(); //embassy
+        console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (embassy) :', mspid);
 
-        if (paper.getOwnerMSP() !== ctx.clientIdentity.getMSPID()) {
-            throw new Error('\nPaper ' + issuer + paperNumber + ' cannot be redeemed by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+        // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Embassy
+        if (approvingOrgMSP !== mspid) {
+            console.log('Application ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+            throw new Error('\nApplication ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
         }
+    
+        // Debug output to verify owner
+        console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
+    
+        let dnName = ctx.clientIdentity.getAttributeValue("DN");
 
-        // As this is just a sample, can show additional verification check: that the redeemer provided matches that on record, before redeeming it
-        if (paper.getOwner() === redeemingOwner) {
-            paper.setOwner(paper.getIssuer());
-            paper.setOwnerMSP(issuingOwnerMSP);
-            paper.setRedeemed();
-            paper.redeemDateTime = redeemDateTime; // record redemption date against the asset (the complement to 'issue date')
+        // if the application submitter MSP matches the application owner MSP
+        if (visaApplication.getOwnerMSP() === applicationSubmitterMSP) {
+            console.log('Owner matches submitter. Approving application... getAttributeValue("DN"):: ', dnName);
+            visaApplication.setOwner(dnName); 
+            visaApplication.setOwnerMSP(mspid); // setting embassy
+            visaApplication.setApproved();
+            visaApplication.approvingDateTime = approvingDateTime; // record redemption date against the asset (the complement to 'issue date')
         } else {
-            throw new Error('\nRedeeming owner: ' + redeemingOwner + ' organisation does not currently own paper: ' + issuer + paperNumber);
+            console.log('Submitter does not own the application:', applicationSubmitterMSP);
+            throw new Error('\nowner: ' + submitterOrg + ' organisation does not currently own application: ' + submitterOrg + applicationNumber);
         }
-
-        await ctx.paperList.updatePaper(paper);
-        return paper;
+    
+        await ctx.visaApplicationList.updateVisaApplication(visaApplication);
+        return visaApplication;
     }
-
+    
     // Query transactions
 
     /**
