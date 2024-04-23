@@ -86,119 +86,141 @@ class VisaApplicationContract extends Contract {
     }
 
     /**
-     * Buy commercial paper
-     *
-      * @param {Context} ctx the transaction context
-      * @param {String} issuer commercial paper issuer
-      * @param {Integer} paperNumber paper number for this issuer
-      * @param {String} currentOwner current owner of paper
-      * @param {String} newOwner new owner of paper
-      * @param {Integer} price price paid for this paper // transaction input - not written to asset
-      * @param {String} purchaseDateTime time paper was purchased (i.e. traded)  // transaction input - not written to asset
-     */
-    async buy(ctx, issuer, paperNumber, currentOwner, newOwner, price, purchaseDateTime) {
-
-        // Retrieve the current paper using key fields provided
-        let paperKey = CommercialPaper.makeKey([issuer, paperNumber]);
-        let paper = await ctx.paperList.getPaper(paperKey);
-
-        // Validate current owner
-        if (paper.getOwner() !== currentOwner) {
-            throw new Error('\nPaper ' + issuer + paperNumber + ' is not owned by ' + currentOwner);
-        }
-
-        // First buy moves state from ISSUED to TRADING (when running )
-        if (paper.isIssued()) {
-            paper.setTrading();
-        }
-
-        // Check paper is not already REDEEMED
-        if (paper.isTrading()) {
-            paper.setOwner(newOwner);
-            // save the owner's MSP 
-            let mspid = ctx.clientIdentity.getMSPID();
-            paper.setOwnerMSP(mspid);
-        } else {
-            throw new Error('\nPaper ' + issuer + paperNumber + ' is not trading. Current state = ' + paper.getCurrentState());
-        }
-
-        // Update the paper
-        await ctx.paperList.updatePaper(paper);
-        return paper;
-    }
-
-    /**
-      *  Buy request:  (2-phase confirmation: Commercial paper is 'PENDING' subject to completion of transfer by owning org)
-      *  Alternative to 'buy' transaction
-      *  Note: 'buy_request' puts paper in 'PENDING' state - subject to transfer confirmation [below].
-      * 
-      * @param {Context} ctx the transaction context
-      * @param {String} issuer commercial paper issuer
-      * @param {Integer} paperNumber paper number for this issuer
-      * @param {String} currentOwner current owner of paper
-      * @param {String} newOwner new owner of paper                              // transaction input - not written to asset per se - but written to block
-      * @param {Integer} price price paid for this paper                         // transaction input - not written to asset per se - but written to block
-      * @param {String} purchaseDateTime time paper was requested                // transaction input - ditto.
-     */
-    async buy_request(ctx, issuer, paperNumber, currentOwner, newOwner, price, purchaseDateTime) {
-        
-
-        // Retrieve the current paper using key fields provided
-        let paperKey = CommercialPaper.makeKey([issuer, paperNumber]);
-        let paper = await ctx.paperList.getPaper(paperKey);
-
-        // Validate current owner - this is really information for the user trying the sample, rather than any 'authorisation' check per se FYI
-        if (paper.getOwner() !== currentOwner) {
-            throw new Error('\nPaper ' + issuer + paperNumber + ' is not owned by ' + currentOwner + ' provided as a paraneter');
-        }
-        // paper set to 'PENDING' - can only be transferred (confirmed) by identity from owning org (MSP check).
-        paper.setPending();
-
-        // Update the paper
-        await ctx.paperList.updatePaper(paper);
-        return paper;
-    }
-
-    /**
-     * transfer commercial paper: only the owning org has authority to execute. It is the complement to the 'buy_request' transaction. '[]' is optional below.
-     * eg. issue -> buy_request -> transfer -> [buy ...n | [buy_request...n | transfer ...n] ] -> redeem
-     * this transaction 'pair' is an alternative to the straight issue -> buy -> [buy....n] -> redeem ...path
+     * Marking Documents check passed for the Visa Application
      *
      * @param {Context} ctx the transaction context
-     * @param {String} issuer commercial paper issuer
-     * @param {Integer} paperNumber paper number for this issuer
-     * @param {String} newOwner new owner of paper
-     * @param {String} newOwnerMSP  MSP id of the transferee
-     * @param {String} confirmDateTime  confirmed transfer date.
+     * @param {String} submitterOrg application submitter, VisaWorld
+     * @param {Integer} applicationNumber application number
+     * @param {String} approvingOrgMSP approving entity
+     * @param {String} previousMSP the MSP of the org that performed last action on the visa application.
+     * @param {String} approvingDateTime time application was approved
     */
-    async transfer(ctx, issuer, paperNumber, newOwner, newOwnerMSP, confirmDateTime) {
+    async documentcheckpass(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime) {
 
-        // Retrieve the current paper using key fields provided
-        let paperKey = CommercialPaper.makeKey([issuer, paperNumber]);
-        let paper = await ctx.paperList.getPaper(paperKey);
+        console.log('>>>>>>>>> vinit >>>>>>>> Inside documentcheckpass() :', submitterOrg);
 
-        // Validate current owner's MSP in the paper === invoking transferor's MSP id - can only transfer if you are the owning org.
+        let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
 
-        if (paper.getOwnerMSP() !== ctx.clientIdentity.getMSPID()) {
-            throw new Error('\nPaper ' + issuer + paperNumber + ' is not owned by the current invoking Organisation, and not authorised to transfer');
+        let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
+
+        console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
+
+        // Check application is not already in final decision i.e. approved/declined
+        if (visaApplication.isApproved() || visaApplication.isDeclined()) {
+            console.log('Decision is already given on Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
+            throw new Error('\nDecision is already given on Visa application ' + submitterOrg + applicationNumber + ' Final decision: ' + visaApplication.currentState);
         }
 
-        // Paper needs to be 'pending' - which means you need to have run 'buy_pending' transaction first.
-        if ( ! paper.isPending()) {
-            throw new Error('\nPaper ' + issuer + paperNumber + ' is not currently in state: PENDING for transfer to occur: \n must run buy_request transaction first');
+        // Check application is not already history check passed or failed
+        if (visaApplication.isHistoryChkFailed()) {
+            console.log('History check is already concluded for Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
+            throw new Error('\nHistory check is already concluded for Visa application ' + submitterOrg + applicationNumber + ' Final decision: ' + visaApplication.currentState);
         }
-        // else all good
 
-        paper.setOwner(newOwner);
-        // set the MSP of the transferee (so that, that org may also pass MSP check, if subsequently transferred/sold on)
-        paper.setOwnerMSP(newOwnerMSP);
-        paper.setTrading();
-        paper.confirmDateTime = confirmDateTime;
+        // Check application is not in documents check failed state.
+        if (visaApplication.isDocChkPassed() || visaApplication.isDocChkFailed()) {
+            console.log('Documents check is already concluded for Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
+            throw new Error('\nDocuments check is already concluded for Visa application ' + submitterOrg + applicationNumber + ' Final decision: ' + visaApplication.currentState);
+        }
 
-        // Update the paper
-        await ctx.paperList.updatePaper(paper);
-        return paper;
+        let mspid = ctx.clientIdentity.getMSPID(); //embassy
+        console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
+
+        // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Police
+        if (approvingOrgMSP !== mspid) {
+            console.log('Application ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+            throw new Error('\nApplication ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+        }
+
+        // Debug output to verify owner
+        console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
+
+        //let dnName = ctx.clientIdentity.getOwner();
+
+        // if the application submitter MSP matches the application owner MSP
+        if (visaApplication.getOwnerMSP() === previousMSP) {
+            console.log('Owner matches submitter. History clearence given for visa application...');
+            //visaApplication.setOwner(dnName); 
+            visaApplication.setOwnerMSP(mspid); // setting embassy
+            visaApplication.setDocChkPassed();
+            visaApplication.approvingDateTime = approvingDateTime;
+        } else {
+            console.log('Submitter does not own the application:', previousMSP);
+            throw new Error('\nowner: ' + submitterOrg + ' organisation does not currently own application: ' + submitterOrg + applicationNumber);
+        }
+
+        await ctx.visaApplicationList.updateVisaApplication(visaApplication);
+        return visaApplication;
     }
+
+    /**
+     * Marking Documents check failed for the Visa Application
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String} submitterOrg application submitter, VisaWorld
+     * @param {Integer} applicationNumber application number
+     * @param {String} approvingOrgMSP approving entity
+     * @param {String} previousMSP the MSP of the org that performed last action on the visa application.
+     * @param {String} approvingDateTime time application was approved
+    */
+    async documentcheckfail(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime) {
+
+        console.log('>>>>>>>>> vinit >>>>>>>> Inside documentcheckfail() :', submitterOrg);
+
+        let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
+
+        let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
+
+        console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
+
+        // Check application is not already in final decision i.e. approved/declined
+        if (visaApplication.isApproved() || visaApplication.isDeclined()) {
+            console.log('Decision is already given on Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
+            throw new Error('\nDecision is already given on Visa application ' + submitterOrg + applicationNumber + ' Final decision: ' + visaApplication.currentState);
+        }
+
+        // Check application is not already history check passed or failed
+        if (visaApplication.isHistoryChkFailed()) {
+            console.log('History check is already concluded for Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
+            throw new Error('\nHistory check is already concluded for Visa application ' + submitterOrg + applicationNumber + ' Final decision: ' + visaApplication.currentState);
+        }
+
+        // Check application is not in documents check failed state.
+        if (visaApplication.isDocChkPassed() || visaApplication.isDocChkFailed()) {
+            console.log('Documents check is already concluded for Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
+            throw new Error('\nDocuments check is already concluded for Visa application ' + submitterOrg + applicationNumber + ' Final decision: ' + visaApplication.currentState);
+        }
+
+        let mspid = ctx.clientIdentity.getMSPID(); //embassy
+        console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
+
+        // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Police
+        if (approvingOrgMSP !== mspid) {
+            console.log('Application ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+            throw new Error('\nApplication ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+        }
+
+        // Debug output to verify owner
+        console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
+
+        //let dnName = ctx.clientIdentity.getOwner();
+
+        // if the application submitter MSP matches the application owner MSP
+        if (visaApplication.getOwnerMSP() === previousMSP) {
+            console.log('Owner matches submitter. History clearence given for visa application...');
+            //visaApplication.setOwner(dnName); 
+            visaApplication.setOwnerMSP(mspid); // setting embassy
+            visaApplication.setDocChkFailed();
+            visaApplication.approvingDateTime = approvingDateTime;
+        } else {
+            console.log('Submitter does not own the application:', previousMSP);
+            throw new Error('\nowner: ' + submitterOrg + ' organisation does not currently own application: ' + submitterOrg + applicationNumber);
+        }
+
+        await ctx.visaApplicationList.updateVisaApplication(visaApplication);
+        return visaApplication;
+    }
+
 
     /**
      * Clearence of History check for the Visa Application
@@ -212,14 +234,14 @@ class VisaApplicationContract extends Contract {
     */
     async historycheckpass(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime) {
 
-        console.log('>>>>>>>>> vinit >>>>>>>> Inside historycheck() :', submitterOrg);
+        console.log('>>>>>>>>> vinit >>>>>>>> Inside historycheckpass() :', submitterOrg);
 
         let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
-    
+
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
-    
+
         console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
-   
+
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
             console.log('Decision is already given on Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
@@ -240,28 +262,95 @@ class VisaApplicationContract extends Contract {
             console.log('Application ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
             throw new Error('\nApplication ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
         }
-    
+
         // Debug output to verify owner
         console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
-    
+
         //let dnName = ctx.clientIdentity.getOwner();
 
         // if the application submitter MSP matches the application owner MSP
         if (visaApplication.getOwnerMSP() === previousMSP) {
             console.log('Owner matches submitter. History clearence given for visa application...');
-            //visaApplication.setOwner(dnName); 
+            //visaApplication.setOwner(dnName);
             visaApplication.setOwnerMSP(mspid); // setting embassy
             visaApplication.setHistoryChkPassed();
-            visaApplication.approvingDateTime = approvingDateTime; // record redemption date against the asset (the complement to 'issue date')
+            visaApplication.approvingDateTime = approvingDateTime;
         } else {
             console.log('Submitter does not own the application:', previousMSP);
             throw new Error('\nowner: ' + submitterOrg + ' organisation does not currently own application: ' + submitterOrg + applicationNumber);
         }
-    
+
         await ctx.visaApplicationList.updateVisaApplication(visaApplication);
         return visaApplication;
     }
 
+    /**
+     * Marking History check failed for the Visa Application
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String} submitterOrg application submitter, VisaWorld
+     * @param {Integer} applicationNumber application number
+     * @param {String} approvingOrgMSP approving entity
+     * @param {String} previousMSP the MSP of the org that performed last action on the visa application.
+     * @param {String} approvingDateTime time application was approved
+    */
+        async historycheckfail(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime) {
+
+            console.log('>>>>>>>>> vinit >>>>>>>> Inside historycheckfail() :', submitterOrg);
+
+            let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
+
+            let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
+
+            console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
+
+            // Check application is not already in final decision i.e. approved/declined
+            if (visaApplication.isApproved() || visaApplication.isDeclined()) {
+                console.log('Decision is already given on Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
+                throw new Error('\nDecision is already given on Visa application ' + submitterOrg + applicationNumber + ' Final decision: ' + visaApplication.currentState);
+            }
+
+            // Check application is not already history check passed or failed
+            if (visaApplication.isHistoryChkPassed() || visaApplication.isHistoryChkFailed()) {
+                console.log('History check is already concluded for Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
+                throw new Error('\nHistory check is already concluded for Visa application ' + submitterOrg + applicationNumber + ' Final decision: ' + visaApplication.currentState);
+            }
+
+            // Check application is not in documents check failed state.
+            if (visaApplication.isDocChkFailed()) {
+                console.log('Documents check was failed for Visa application ' + submitterOrg + applicationNumber + ' Application cannot proceed. ');
+                throw new Error('\nDocuments check was failed for Visa application ' + submitterOrg + applicationNumber + ' Application cannot proceed. ');
+            }
+
+            let mspid = ctx.clientIdentity.getMSPID(); //embassy
+            console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
+
+            // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Police
+            if (approvingOrgMSP !== mspid) {
+                console.log('Application ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+                throw new Error('\nApplication ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+            }
+
+            // Debug output to verify owner
+            console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
+
+            //let dnName = ctx.clientIdentity.getOwner();
+
+            // if the application submitter MSP matches the application owner MSP
+            if (visaApplication.getOwnerMSP() === previousMSP) {
+                console.log('Owner matches submitter. History clearence given for visa application...');
+                //visaApplication.setOwner(dnName);
+                visaApplication.setOwnerMSP(mspid); // setting embassy
+                visaApplication.setHistoryChkFailed();
+                visaApplication.approvingDateTime = approvingDateTime;
+            } else {
+                console.log('Submitter does not own the application:', previousMSP);
+                throw new Error('\nowner: ' + submitterOrg + ' organisation does not currently own application: ' + submitterOrg + applicationNumber);
+            }
+
+            await ctx.visaApplicationList.updateVisaApplication(visaApplication);
+            return visaApplication;
+        }
 
     /**
      * Approve Visa Application
@@ -278,11 +367,85 @@ class VisaApplicationContract extends Contract {
         console.log('>>>>>>>>> vinit >>>>>>>> Inside approve() :', submitterOrg);
 
         let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
-    
+
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
-    
+
         console.log('>>>>>>>>> vinit >>>>>>>> visaApplication fetched :', visaApplication);
-   
+
+        // Check application is not already in final decision i.e. approved/declined
+        if (visaApplication.isApproved() || visaApplication.isDeclined()) {
+            console.log('Decision is already given on Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
+            throw new Error('\nDecision is already given on Visa application ' + submitterOrg + applicationNumber + ' Final decision: ' + visaApplication.currentState);
+        }
+
+        // Check application is not in history check failed state.
+        if (visaApplication.isHistoryChkFailed()) {
+            console.log('Background history check was failed for Visa application ' + submitterOrg + applicationNumber + ' Application cannot proceed. ');
+            throw new Error('\nBackground history check was failed for Visa application ' + submitterOrg + applicationNumber + ' Application cannot proceed. ');
+        }
+
+        // Check application is not in documents check failed state.
+        if (visaApplication.isDocChkFailed()) {
+            console.log('Documents check was failed for Visa application ' + submitterOrg + applicationNumber + ' Application cannot proceed. ');
+            throw new Error('\nDocuments check was failed for Visa application ' + submitterOrg + applicationNumber + ' Application cannot proceed. ');
+        }
+
+        let mspid = ctx.clientIdentity.getMSPID(); //embassy
+        console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (embassy) :', mspid);
+
+        // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Embassy
+        if (approvingMSP !== mspid) {
+            console.log('Application ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+            throw new Error('\nApplication ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+        }
+
+        // Debug output to verify owner
+        console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
+
+        //let dnName = ctx.clientIdentity.getOwner();
+
+        if(!visaApplication.isHistoryChkPassed()) {
+            console.log('Background history check is pending for Visa application ' + submitterOrg + applicationNumber + ' Police org needs to confirm the transaction. ');
+            throw new Error('\nBackground history check is still pending for Visa application ' + submitterOrg + applicationNumber + ' Police org needs to confirm the transaction. ');
+        }
+
+
+        // if the application submitter MSP matches the application owner MSP
+        if (visaApplication.getOwnerMSP() === previousMSP) {
+            console.log('Owner matches submitter. Approving visa application...');
+            //visaApplication.setOwner(dnName);
+            visaApplication.setOwnerMSP(mspid); // setting embassy
+            visaApplication.setApproved();
+            visaApplication.approvingDateTime = approvingDateTime; // record approval date
+        } else {
+            console.log('Submitter does not own the application:', previousMSP);
+            throw new Error('\nowner: ' + submitterOrg + ' organisation does not currently own application: ' + submitterOrg + applicationNumber);
+        }
+
+        await ctx.visaApplicationList.updateVisaApplication(visaApplication);
+        return visaApplication;
+    }
+
+    /**
+     * Decline Visa Application
+     *
+     * @param {Context} ctx the transaction context
+     * @param {String} submitterOrg application submitter, VisaWorld
+     * @param {Integer} applicationNumber application number
+     * @param {String} approvingOrgMSP approving entity
+     * @param {String} previousMSP the MSP of the org that performed last action on the visa application.
+     * @param {String} approvingDateTime time application was approved
+    */
+    async decline(ctx, submitterOrg, applicationNumber, approvingMSP, previousMSP, approvingDateTime) {
+
+        console.log('>>>>>>>>> vinit >>>>>>>> Inside decline() :', submitterOrg);
+
+        let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
+
+        let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
+
+        console.log('>>>>>>>>> vinit >>>>>>>> visaApplication fetched :', visaApplication);
+
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
             console.log('Decision is already given on Visa application ' + submitterOrg + applicationNumber + '. Final decision: ' + visaApplication.currentState);
@@ -294,31 +457,32 @@ class VisaApplicationContract extends Contract {
 
         // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Embassy
         if (approvingMSP !== mspid) {
-            console.log('Application ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
-            throw new Error('\nApplication ' + submitterOrg + applicationNumber + ' cannot be approved by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+            console.log('Application ' + submitterOrg + applicationNumber + ' cannot be declined by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
+            throw new Error('\nApplication ' + submitterOrg + applicationNumber + ' cannot be declined by ' + ctx.clientIdentity.getMSPID() + ', as it is not the authorised owning Organisation');
         }
-    
+
         // Debug output to verify owner
         console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
-    
+
         //let dnName = ctx.clientIdentity.getOwner();
 
         // if the application submitter MSP matches the application owner MSP
         if (visaApplication.getOwnerMSP() === previousMSP) {
-            console.log('Owner matches submitter. Approving visa application...');
-            //visaApplication.setOwner(dnName); 
+            console.log('Declining visa application...');
+            //visaApplication.setOwner(dnName);
             visaApplication.setOwnerMSP(mspid); // setting embassy
-            visaApplication.setApproved();
-            visaApplication.approvingDateTime = approvingDateTime; // record redemption date against the asset (the complement to 'issue date')
+            visaApplication.setDeclined();
+            visaApplication.approvingDateTime = approvingDateTime; // record decline date
         } else {
             console.log('Submitter does not own the application:', previousMSP);
             throw new Error('\nowner: ' + submitterOrg + ' organisation does not currently own application: ' + submitterOrg + applicationNumber);
         }
-    
+
         await ctx.visaApplicationList.updateVisaApplication(visaApplication);
         return visaApplication;
     }
-    
+
+
     // Query transactions
 
     /**
@@ -365,10 +529,10 @@ class VisaApplicationContract extends Contract {
 
     /**
     * queryAdHoc visa applications - supply a custom mongo query
-    * eg - as supplied as a param:     
+    * eg - as supplied as a param:
     * ex1:  ["{\"selector\":{\"applicationNumber\":{\"$eq\":00001}}}"]
     * ex2:  ["{\"selector\":{\"submitter\":{\"$eq\":VisaWorld}}}"]
-    * 
+    *
     * @param {Context} ctx the transaction context
     * @param {String} queryString querystring
     */

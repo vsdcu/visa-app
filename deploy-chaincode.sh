@@ -8,17 +8,17 @@ cd /Users/vinit/go/src/visa-app/organization/visaworld
 echo "Step 2: Sourcing the visaworld.sh script..."
 source visaworld.sh
 
-echo "Step 3: Packaging the chaincode on peer..."
+echo "Step 3: Packaging the chaincode on peer 1 (Visaworld Org)..."
 peer lifecycle chaincode package cp.tar.gz --lang node --path ./contract --label cp_0
 
-echo "Step 4: Installing the chaincode on peer..."
+echo "Step 4: Installing the chaincode on peer 1 (Visaworld Org)..."
 peer lifecycle chaincode install cp.tar.gz
 
 echo "Step 5: Fetching the chaincode ID..."
 export PACKAGE_ID=$(peer lifecycle chaincode queryinstalled --output json | jq -r '.installed_chaincodes[0].package_id')
 echo "Chaincode ID: $PACKAGE_ID"
 
-echo "Step 6: Approving the chaincode..."
+echo "Step 6: Approving the chaincode on peer 1 (Visaworld Org)..."
 peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
                                           --channelID mychannel  \
                                           --name visaappcontract  \
@@ -28,7 +28,7 @@ peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSH
                                           --tls  \
                                           --cafile "$ORDERER_CA"
 
-echo "Step 7: Checking readiness..."
+echo "Step 7: Checking readiness on peer 1 (Visaworld Org)..."
 peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name visaappcontract -v 0 --sequence 1
 
 # Running in Embassy org:
@@ -39,17 +39,17 @@ cd /Users/vinit/go/src/visa-app/organization/embassy
 echo "Step 9: Sourcing the embassy.sh script..."
 source embassy.sh
 
-echo "Step 10: Packaging the chaincode on peer..."
+echo "Step 10: Packaging the chaincode on peer 2 (Embassy Org)..."
 peer lifecycle chaincode package cp.tar.gz --lang node --path ./contract --label cp_0
 
-echo "Step 11: Installing the chaincode on peer..."
+echo "Step 11: Installing the chaincode on peer 2 (Embassy Org)..."
 peer lifecycle chaincode install cp.tar.gz
 
 echo "Step 12: Fetching the chaincode ID..."
 export PACKAGE_ID=$(peer lifecycle chaincode queryinstalled --output json | jq -r '.installed_chaincodes[0].package_id')
 echo "Chaincode ID: $PACKAGE_ID"
 
-echo "Step 13: Approving the chaincode..."
+echo "Step 13: Approving the chaincode on peer 2 (Embassy Org)..."
 peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
                                           --channelID mychannel  \
                                           --name visaappcontract  \
@@ -59,7 +59,7 @@ peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSH
                                           --tls  \
                                           --cafile "$ORDERER_CA"
 
-echo "Step 14: Checking readiness..."
+echo "Step 14: Checking readiness on peer 2 (Embassy Org)..."
 peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name visaappcontract -v 0 --sequence 1
 
 
@@ -71,17 +71,17 @@ cd /Users/vinit/go/src/visa-app/organization/police
 echo "Step 16: Sourcing the police.sh script..."
 source police.sh
 
-echo "Step 17: Packaging the chaincode on peer..."
+echo "Step 17: Packaging the chaincode on peer 3 (Police Org)..."
 peer lifecycle chaincode package cp.tar.gz --lang node --path ./contract --label cp_0
 
-echo "Step 18: Installing the chaincode on peer..."
+echo "Step 18: Installing the chaincode on peer 3 (Police Org)..."
 peer lifecycle chaincode install cp.tar.gz
 
 echo "Step 19: Fetching the chaincode ID..."
 export PACKAGE_ID=$(peer lifecycle chaincode queryinstalled --output json | jq -r '.installed_chaincodes[0].package_id')
 echo "Chaincode ID: $PACKAGE_ID"
 
-echo "Step 20: Approving the chaincode..."
+echo "Step 20: Approving the chaincode on peer 3 (Police Org)..."
 peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
                                           --channelID mychannel  \
                                           --name visaappcontract  \
@@ -91,13 +91,13 @@ peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSH
                                           --tls  \
                                           --cafile "$ORDERER_CA"
 
-echo "Step 21: Checking readiness..."
+echo "Step 21: Checking readiness on peer 3 (Police Org)..."
 peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name visaappcontract -v 0 --sequence 1
 
 
 # Committing chaincode visacontract to fabric
 
-echo "Step 22: Committing to fabric as Police..."
+echo "Step 22: Committing to fabric..."
 peer lifecycle chaincode commit -o localhost:7050 \
                                 --peerAddresses localhost:7051 --tlsRootCertFiles "${PEER0_ORG1_CA}" \
                                 --peerAddresses localhost:9051 --tlsRootCertFiles "${PEER0_ORG2_CA}" \

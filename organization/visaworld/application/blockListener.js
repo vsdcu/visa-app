@@ -57,9 +57,11 @@ async function main() {
                         console.log(inputData);
                         // Show the proposed writes to the world state
                         let keyData = 'Keys updated: ';
-                        for (const l in event.blockData.data.data[i].payload.data.actions[0].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.writes) {
-                            // add a ' ' space between multiple keys in 'concat'
-                            keyData = keyData.concat(event.blockData.data.data[i].payload.data.actions[0].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.writes[l].key, ' ');
+                        if(event.blockData.data.data[i].payload.data.actions[0].payload.action.proposal_response_payload.extension.results.ns_rwset[1] != null) {
+                            for (const l in event.blockData.data.data[i].payload.data.actions[0].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.writes) {
+                                // add a ' ' space between multiple keys in 'concat'
+                                keyData = keyData.concat(event.blockData.data.data[i].payload.data.actions[0].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.writes[l].key, ' ');
+                            }
                         }
                         console.log(keyData);
                         // Show which organizations endorsed

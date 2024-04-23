@@ -11,13 +11,13 @@ const State = require('../ledger-api/state.js');
 
 // Enumerate visa application state values
 const visaState = {
-    NEW:1,
-    DOCS_CHK_PASS:2,
-    DOCS_CHK_FAIL:3,
-    HISTORY_CHK_PASS:4,
-    HISTORY_CHK_FAIL:5,
-    APPROVED:6,
-    DECLINED:7
+    NEW: 1,
+    DOCS_CHK_PASS: 2,
+    DOCS_CHK_FAIL: 3,
+    HISTORY_CHK_PASS: 4,
+    HISTORY_CHK_FAIL: 5,
+    APPROVED: 6,
+    DECLINED: 7
 };
 
 /**
@@ -142,6 +142,32 @@ class VisaApp extends State {
 
     static getClass() {
         return 'org.visanet.visaapp';
+    }
+
+    /**
+ * Utility function to get the string representation of visa application state
+ * @param {number} stateInt - Integer value representing the visa application state
+ * @returns {string} - String representation of the visa application state
+ */
+    static getStateString(stateInt) {
+        switch (stateInt) {
+            case visaState.NEW:
+                return 'NEW';
+            case visaState.DOCS_CHK_PASS:
+                return 'DOCS_CHK_PASS';
+            case visaState.DOCS_CHK_FAIL:
+                return 'DOCS_CHK_FAIL';
+            case visaState.HISTORY_CHK_PASS:
+                return 'HISTORY_CHK_PASS';
+            case visaState.HISTORY_CHK_FAIL:
+                return 'HISTORY_CHK_FAIL';
+            case visaState.APPROVED:
+                return 'APPROVED';
+            case visaState.DECLINED:
+                return 'DECLINED';
+            default:
+                return 'UNKNOWN';
+        }
     }
 }
 
