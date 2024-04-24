@@ -13,11 +13,11 @@ The existing network test network with two Organization peers and an ordering se
 
 Bash scripts have been provided for ease of operations:
 1. To bring up the basic 2 org network with 2 peers, 2 CAs, 2 CouchDBs, 1 orderer, and a channel:
-    > `network-starter.sh`
+    > `start-visanet-network.sh`
 2. To add another org in the existing network and set up required steps:
-    > `setup-org3.sh`
+    > `add-org3.sh`
 3. To run the lifecycle steps required for the chaincode to Package, Install, Approve, and Commit to Fabric:
-    > `my-deploy-script.sh`
+    > `deploy-chaincode.sh`
 4. To print the chaincode and network logs to console:
     > `monitor-logs.sh`
 
@@ -28,9 +28,9 @@ Bash scripts have been provided for ease of operations:
 1. Clone the repository visa app.
 2. Navigate to the cloned repository: `cd /Users/vinit/go/src/visa-app`.
 3. Setting up the initial test network with 2 orgs:
-    > `./network-starter.sh`
+    > `./start-visanet-network.sh`
 4. Add 3rd org into the existing network:
-    > `./setup-org3.sh`
+    > `./add-org3.sh`
 5. Enable monitoring logging in a separate shell:
     > `./monitor-logs.sh`
 6. Enable the Block explorer in a separate bash shell:
@@ -82,18 +82,18 @@ Bash scripts have been provided for ease of operations:
     node visaApprove.js
     ```
 
-#### (Optional) Checking world state by querying the ledger
+#### (Optional) Checking world state by querying the ledger any time
 4. Query fabric to verify the application state at any time:
     ```
     cd /Users/vinit/go/src/visa-app/organization/visaworld
     source visaworld.sh
     cd /Users/vinit/go/src/visa-app/organization/visaworld/application
     node addToWallet.js
-    node queryapp.js
+    node query-transaction-history.js
     ```
 
 ### Shutting Down the Network
 ```
 cd /Users/vinit/go/src/visa-app
-./network-clean.sh
+./stop-visanet-network.sh
 ```
