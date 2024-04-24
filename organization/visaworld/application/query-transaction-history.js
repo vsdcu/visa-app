@@ -8,10 +8,10 @@
  * This application has 6 basic steps:
  * 1. Select an identity from a wallet
  * 2. Connect to network gateway
- * 3. Access PaperNet network
- * 4. Construct request to buy (buy_request) commercial paper
- * 5. Submit transaction
- * 6. Process response
+ * 3. Access VisaNet network
+ * 4. Construct request to query the ledger
+ * 5. Evaluate transactions (queries)
+ * 6. Process responses
  */
 
 'use strict';
@@ -20,14 +20,13 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
 const { Wallets, Gateway } = require('fabric-network');
-const CommercialPaper = require('../../magnetocorp/contract/lib/paper.js');
 
 
 // Main program function
-async function main () {
+async function main() {
 
     // A wallet stores a collection of identities for use
-    const wallet = await Wallets.newFileSystemWallet('../identity/user/balaji/wallet');
+    const wallet = await Wallets.newFileSystemWallet('../identity/user/isabella/wallet');
 
 
     // A gateway defines the peers used to access Fabric networks
@@ -37,10 +36,10 @@ async function main () {
     try {
 
         // Specify userName for network access
-        const userName = 'balaji';
+        const userName = 'isabella';
 
         // Load connection profile; will be used to locate a gateway
-        let connectionProfile = yaml.safeLoad(fs.readFileSync('../gateway/connection-org1.yaml', 'utf8'));
+        let connectionProfile = yaml.safeLoad(fs.readFileSync('../gateway/connection-org2.yaml', 'utf8'));
 
         // Set connection options; identity and wallet
         let connectionOptions = {
@@ -55,29 +54,32 @@ async function main () {
 
         await gateway.connect(connectionProfile, connectionOptions);
 
-        // Access PaperNet network
+        // Access VisaNet network
         console.log('Use network channel: mychannel.');
 
         const network = await gateway.getNetwork('mychannel');
 
-        // Get addressability to commercial paper contract
-        console.log('Use org.papernet.commercialpaper smart contract.');
+        // Get addressability to visa appliocation contract
+        console.log('Use org.visanet.visaapp smart contract.');
 
-        const contract = await network.getContract('papercontract', 'org.papernet.commercialpaper');
+        const contract = await network.getContract('visaappcontract', 'org.visanet.visaapp');
 
-        // request to buy commercial paper using buy_request / transfer two-part transaction
-        console.log('Submit commercial paper buy_request transaction.');
+        // queries - visa application
+        console.log('-----------------------------------------------------------------------------------------');
+        console.log('****** Submitting visa application queries ****** \n\n ');
 
-        const buyResponse = await contract.submitTransaction('buy_request', 'MagnetoCorp', '00001', 'MagnetoCorp', 'DigiBank', '4900000', '2020-05-31');
 
-        // process response
-        console.log('Process buy_request transaction response.');
+        // 1 asset history
+        console.log('1. Query Visa Application History....');
+        console.log('-----------------------------------------------------------------------------------------\n');
+        let queryResponse = await contract.evaluateTransaction('queryHistory', 'VisaWorld', '00001');
 
-        let paper = CommercialPaper.fromBuffer(buyResponse);
-
-        console.log(`${paper.issuer} commercial paper : ${paper.paperNumber} has been provisionally purchased : the transfer must now be completed by paper owner`);
-        console.log('Transaction complete.');
-
+        let json = JSON.parse(queryResponse.toString());
+        console.log(json);
+        console.log('\n\n');
+        console.log('\n  History query complete.');
+        console.log('-----------------------------------------------------------------------------------------\n\n');
+     
     } catch (error) {
 
         console.log(`Error processing transaction. ${error}`);
@@ -93,11 +95,11 @@ async function main () {
 }
 main().then(() => {
 
-    console.log('Buy_request program complete.');
+    console.log('Queryapp program complete.');
 
 }).catch((e) => {
 
-    console.log('Buy_request program exception.');
+    console.log('Queryapp program exception.');
     console.log(e);
     console.log(e.stack);
     process.exit(-1);
