@@ -26,7 +26,7 @@ const { Wallets, Gateway } = require('fabric-network');
 async function main() {
 
     // A wallet stores a collection of identities for use
-    const wallet = await Wallets.newFileSystemWallet('../identity/user/isabella/wallet');
+    const wallet = await Wallets.newFileSystemWallet('../identity/user/markAgent/wallet');
 
 
     // A gateway defines the peers used to access Fabric networks
@@ -36,7 +36,7 @@ async function main() {
     try {
 
         // Specify userName for network access
-        const userName = 'isabella';
+        const userName = 'markAgent';
 
         // Load connection profile; will be used to locate a gateway
         let connectionProfile = yaml.safeLoad(fs.readFileSync('../gateway/connection-org2.yaml', 'utf8'));

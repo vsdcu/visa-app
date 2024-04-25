@@ -38,7 +38,7 @@ async function main() {
 
     // Specify userName for network access
         // Specify userName for network access
-        const userName = 'vinit';
+        const userName = 'jackCop';
 
     // Load connection profile; will be used to locate a gateway
     let connectionProfile = yaml.safeLoad(fs.readFileSync('../gateway/connection-org3.yaml', 'utf8'));
@@ -71,7 +71,7 @@ async function main() {
     // previousMSP should be Org2MSP (VisaWorld) before application reach the history check stage.
     // this check make sure VisaWorld org had the last ownership of this appliocation. 
     // TODO: In future iteraations we might introduced another Org for docs checks, Biomatric checks, so previoudMSP would be useful here to link the previous ownerships.
-    const historyChkResponse = await contract.submitTransaction('historycheckfail', 'VisaWorld', '00001', 'Org3MSP', 'Org2MSP', '2020-11-30'); // async historycheckpass(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime)
+    const historyChkResponse = await contract.submitTransaction('historycheckfail', 'VisaWorld', '00001', 'Org3MSP', 'Org2MSP', '2024-05-01'); // async historycheckpass(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime)
 
     // process response
     console.log('Process historyChkResponse transaction response.');

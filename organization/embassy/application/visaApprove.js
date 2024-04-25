@@ -27,7 +27,7 @@ const visaapp = require('../contract/lib/visaapp.js');
 async function main() {
 
   // A wallet stores a collection of identities for use
-  const wallet = await Wallets.newFileSystemWallet('../identity/user/balaji/wallet');
+  const wallet = await Wallets.newFileSystemWallet('../identity/user/robertOfficer/wallet');
 
 
   // A gateway defines the peers used to access Fabric networks
@@ -38,7 +38,7 @@ async function main() {
 
     // Specify userName for network access
         // Specify userName for network access
-        const userName = 'balaji';
+        const userName = 'robertOfficer';
 
     // Load connection profile; will be used to locate a gateway
     let connectionProfile = yaml.safeLoad(fs.readFileSync('../gateway/connection-org1.yaml', 'utf8'));
@@ -70,7 +70,7 @@ async function main() {
 
     // previousMSP should be Org3MSP (Police) before application reach the approval stage.
     // this check make sure police org had the last ownership of this appliocation.
-    const approvedResponse = await contract.submitTransaction('approve', 'VisaWorld', '00001', 'Org1MSP', 'Org3MSP', '2020-11-30'); // async approve(ctx, submitterOrg, applicationNumber, approvingMSP, previousMSP, approvingDateTime)
+    const approvedResponse = await contract.submitTransaction('approve', 'VisaWorld', '00001', 'Org1MSP', 'Org3MSP', '2024-05-01'); // async approve(ctx, submitterOrg, applicationNumber, approvingMSP, previousMSP, approvingDateTime)
 
     // process response
     console.log('Process approved transaction response.');

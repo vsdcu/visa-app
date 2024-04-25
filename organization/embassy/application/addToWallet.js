@@ -19,7 +19,7 @@ async function main() {
     try {
 
         // A wallet stores a collection of identities
-        const wallet = await Wallets.newFileSystemWallet('../identity/user/balaji/wallet');
+        const wallet = await Wallets.newFileSystemWallet('../identity/user/robertOfficer/wallet');
 
         // Identity to credentials to be stored in the wallet
         const credPath = path.join(fixtures, '/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com');
@@ -27,7 +27,7 @@ async function main() {
         const privateKey = fs.readFileSync(path.join(credPath, '/msp/keystore/priv_sk')).toString();
 
         // Load credentials into wallet
-        const identityLabel = 'balaji';
+        const identityLabel = 'robertOfficer';
 
         const identity = {
             credentials: {

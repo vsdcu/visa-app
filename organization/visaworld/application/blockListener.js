@@ -8,13 +8,13 @@ const fs = require("fs");
 let finished;
 async function main() {
     try {
-        // Set up the wallet - just use Org2's wallet (isabella)
-	const wallet = await Wallets.newFileSystemWallet('../identity/user/isabella/wallet');
+        // Set up the wallet - just use Org2's wallet (markAgent)
+	const wallet = await Wallets.newFileSystemWallet('../identity/user/markAgent/wallet');
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
         
-        const userName = 'isabella';
+        const userName = 'markAgent';
 
         // Load connection profile; will be used to locate a gateway
         let connectionProfile = yaml.safeLoad(fs.readFileSync('../gateway/connection-org2.yaml', 'utf8'));

@@ -27,7 +27,7 @@ async function main() {
         const privateKey = fs.readFileSync(path.join(credPath, '/msp/keystore/priv_sk')).toString();
 
         // Load credentials into wallet
-        const identityLabel = 'vinit';
+        const identityLabel = 'jackCop';
 
         const identity = {
             credentials: {
