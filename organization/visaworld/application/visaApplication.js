@@ -73,7 +73,7 @@ async function main() {
 
         let visaapp = VisaApp.fromBuffer(appSubmitResponse);
 
-        console.log(`${visaapp.submitter} : Visa application : ${visaapp.applicationNumber} successfully submitted`);
+        console.log(`${visaapp.submitter} : Visa application : ${visaapp.applicationNumber} successfully submitted.`);
         console.log('Transaction complete.');
 
     } catch (error) {

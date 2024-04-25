@@ -77,7 +77,7 @@ async function main() {
 
     let visa = visaapp.fromBuffer(approvedResponse);
 
-    console.log(`${visa.submitter} visa application : ${visa.applicationNumber} successfully approveded by ${visa.owner}`);
+    console.log(`${visa.submitter} visa application : ${visa.applicationNumber} was successful.`);
 
     console.log('Transaction complete.');
 

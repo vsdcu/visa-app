@@ -78,7 +78,7 @@ async function main() {
 
     let visa = visaapp.fromBuffer(historyChkResponse);
 
-    console.log(`${visa.submitter} visa application : ${visa.applicationNumber} successfully historyChk by ${visa.owner}`);
+    console.log(`${visa.submitter} visa application : ${visa.applicationNumber} history check was successfully completed.`);
 
     console.log('Transaction complete.');
 
