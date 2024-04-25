@@ -9,7 +9,7 @@ function _exit(){
     exit -1
 }
 
-: ${CHANNEL_NAME:="mychannel"}
+: ${CHANNEL_NAME:="visachannel"}
 : ${DELAY:="3"}
 : ${MAX_RETRY:="5"}
 : ${VERBOSE:="false"}

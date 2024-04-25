@@ -55,9 +55,9 @@ async function main() {
         await gateway.connect(connectionProfile, connectionOptions);
 
         // Access VisaNet network
-        console.log('Use network channel: mychannel.');
+        console.log('Use network channel: visachannel.');
 
-        const network = await gateway.getNetwork('mychannel');
+        const network = await gateway.getNetwork('visachannel');
 
         // Get addressability to visa appliocation contract
         console.log('Use org.visanet.visaapp smart contract.');

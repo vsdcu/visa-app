@@ -105,7 +105,7 @@ class VisaApplicationContract extends Contract {
 
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        //console.log('historycheck visaApplication fetched :', visaApplication);
+        console.log('visaApplication fetched (world-state) :', visaApplication);
 
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -173,7 +173,7 @@ class VisaApplicationContract extends Contract {
 
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        //console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
+        console.log('visaApplication fetched (world-state) :', visaApplication);
 
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -240,7 +240,7 @@ class VisaApplicationContract extends Contract {
 
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        //console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
+        console.log('visaApplication fetched (world-state) :', visaApplication);
 
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -302,7 +302,7 @@ class VisaApplicationContract extends Contract {
 
             let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-            //console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
+            console.log('visaApplication fetched (world-state) :', visaApplication);
 
             // Check application is not already in final decision i.e. approved/declined
             if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -370,7 +370,7 @@ class VisaApplicationContract extends Contract {
 
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        //console.log('>>>>>>>>> vinit >>>>>>>> visaApplication fetched :', visaApplication);
+        console.log('visaApplication fetched (world-state) :', visaApplication);
 
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -443,7 +443,7 @@ class VisaApplicationContract extends Contract {
 
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        //console.log('>>>>>>>>> vinit >>>>>>>> visaApplication fetched :', visaApplication);
+        console.log('visaApplication fetched (world-state) :', visaApplication);
 
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {

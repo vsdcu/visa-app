@@ -29,7 +29,7 @@ async function main() {
         // connect to the gateway
         await gateway.connect(connectionProfile, connectionOptions);
         // get the channel and smart contract
-        const network = await gateway.getNetwork('mychannel');
+        const network = await gateway.getNetwork('visachannel');
 
         // Listen for blocks being added, display relevant contents: in particular, the transaction inputs
         finished = false;

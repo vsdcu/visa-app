@@ -12,7 +12,7 @@ echo "Cryptographic material for org3 generated successfully."
 
 # Start org3 and join channel
 echo "Starting org3 and joining channel..."
-./addOrg3.sh up -c mychannel -s couchdb -ca
+./addOrg3.sh up -c visachannel -s couchdb -ca
 echo "Org3 started and joined channel successfully."
 
 # Copy connection-org3.yaml into police gateway directory

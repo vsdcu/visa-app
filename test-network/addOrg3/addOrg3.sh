@@ -26,7 +26,7 @@ function printHelp () {
   echo "      - 'up' - add org3 to the sample network. You need to bring up the test network and create a channel first."
   echo "      - 'down' - bring down the test network and org3 nodes"
   echo "      - 'generate' - generate required certificates and org definition"
-  echo "    -c <channel name> - test network channel name (defaults to \"mychannel\")"
+  echo "    -c <channel name> - test network channel name (defaults to \"visachannel\")"
   echo "    -ca <use CA> -  Use a CA to generate the crypto material"
   echo "    -t <timeout> - CLI timeout duration in seconds (defaults to 10)"
   echo "    -d <delay> - delay duration in seconds (defaults to 3)"
@@ -40,7 +40,7 @@ function printHelp () {
   echo
   echo "	addOrg3.sh generate"
   echo "	addOrg3.sh up"
-  echo "	addOrg3.sh up -c mychannel -s couchdb"
+  echo "	addOrg3.sh up -c visachannel -s couchdb"
   echo "	addOrg3.sh down"
   echo
   echo "Taking all defaults:"
@@ -181,8 +181,8 @@ CRYPTO="cryptogen"
 CLI_TIMEOUT=10
 #default for delay
 CLI_DELAY=3
-# channel name defaults to "mychannel"
-CHANNEL_NAME="mychannel"
+# channel name defaults to "visachannel"
+CHANNEL_NAME="visachannel"
 # use this as the docker compose couch file
 COMPOSE_FILE_COUCH_ORG3=docker/docker-compose-couch-org3.yaml
 # use this as the default docker-compose yaml definition

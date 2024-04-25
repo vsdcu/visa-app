@@ -20,7 +20,7 @@ echo "Chaincode ID: $PACKAGE_ID"
 
 echo "Step 6: Approving the chaincode on peer 1 (Visaworld Org)..."
 peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
-                                          --channelID mychannel  \
+                                          --channelID visachannel  \
                                           --name visaappcontract  \
                                           -v 0  \
                                           --package-id $PACKAGE_ID \
@@ -29,7 +29,7 @@ peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSH
                                           --cafile "$ORDERER_CA"
 
 echo "Step 7: Checking readiness on peer 1 (Visaworld Org)..."
-peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name visaappcontract -v 0 --sequence 1
+peer lifecycle chaincode checkcommitreadiness --channelID visachannel --name visaappcontract -v 0 --sequence 1
 
 # Running in Embassy org:
 
@@ -51,7 +51,7 @@ echo "Chaincode ID: $PACKAGE_ID"
 
 echo "Step 13: Approving the chaincode on peer 2 (Embassy Org)..."
 peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
-                                          --channelID mychannel  \
+                                          --channelID visachannel  \
                                           --name visaappcontract  \
                                           -v 0  \
                                           --package-id $PACKAGE_ID \
@@ -60,7 +60,7 @@ peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSH
                                           --cafile "$ORDERER_CA"
 
 echo "Step 14: Checking readiness on peer 2 (Embassy Org)..."
-peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name visaappcontract -v 0 --sequence 1
+peer lifecycle chaincode checkcommitreadiness --channelID visachannel --name visaappcontract -v 0 --sequence 1
 
 
 # Running in Police org:
@@ -83,7 +83,7 @@ echo "Chaincode ID: $PACKAGE_ID"
 
 echo "Step 20: Approving the chaincode on peer 3 (Police Org)..."
 peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
-                                          --channelID mychannel  \
+                                          --channelID visachannel  \
                                           --name visaappcontract  \
                                           -v 0  \
                                           --package-id $PACKAGE_ID \
@@ -92,7 +92,7 @@ peer lifecycle chaincode approveformyorg  --orderer localhost:7050 --ordererTLSH
                                           --cafile "$ORDERER_CA"
 
 echo "Step 21: Checking readiness on peer 3 (Police Org)..."
-peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name visaappcontract -v 0 --sequence 1
+peer lifecycle chaincode checkcommitreadiness --channelID visachannel --name visaappcontract -v 0 --sequence 1
 
 
 # Committing chaincode visacontract to fabric
@@ -103,7 +103,7 @@ peer lifecycle chaincode commit -o localhost:7050 \
                                 --peerAddresses localhost:9051 --tlsRootCertFiles "${PEER0_ORG2_CA}" \
                                 --peerAddresses localhost:11051 --tlsRootCertFiles "${PEER0_ORG3_CA}" \
                                 --ordererTLSHostnameOverride orderer.example.com \
-                                --channelID mychannel --name visaappcontract -v 0 \
+                                --channelID visachannel --name visaappcontract -v 0 \
                                 --sequence 1 \
                                 --tls --cafile "$ORDERER_CA" --waitForEvent
 
@@ -111,13 +111,13 @@ echo "Step 23: Invoking chaincode..."
 peer chaincode invoke -o localhost:7050  --ordererTLSHostnameOverride orderer.example.com \
                                 --peerAddresses localhost:7051 --tlsRootCertFiles "${PEER0_ORG1_CA}" \
                                 --peerAddresses localhost:9051 --tlsRootCertFiles "${PEER0_ORG2_CA}" \
-                                --channelID mychannel --name visaappcontract \
+                                --channelID visachannel --name visaappcontract \
                                 -c '{"Args":["org.visanet.visaapp:instantiate"]}' ${PEER_ADDRESS_ORG1} ${PEER_ADDRESS_ORG2} \
                                 --tls --cafile "$ORDERER_CA" --waitForEvent
 
 echo "Step 24: Printing chaincode metadata..."
 peer chaincode query -o localhost:7050  --ordererTLSHostnameOverride orderer.example.com \
-                                        --channelID mychannel \
+                                        --channelID visachannel \
                                         --name visaappcontract \
                                         -c '{"Args":["org.hyperledger.fabric:GetMetadata"]}' \
                                         --peerAddresses localhost:9051 --tlsRootCertFiles "${PEER0_ORG2_CA}" \
