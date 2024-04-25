@@ -65,6 +65,8 @@ class VisaApplicationContract extends Contract {
     */
     async appsubmit(ctx, submitter, applicationNumber, submissionDateTime) {
 
+        console.log('>>>>>>>>>>>>>>>>> VisaAppContract::appsubmit <<<<<<<<<<<<<<<<< applicationNumber: ', applicationNumber);
+
         // create an instance of the contract
         let visaApp = VisaApplication.createInstance(submitter, applicationNumber, submissionDateTime);
 
@@ -97,13 +99,13 @@ class VisaApplicationContract extends Contract {
     */
     async documentcheckpass(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime) {
 
-        console.log('>>>>>>>>> vinit >>>>>>>> Inside documentcheckpass() :', submitterOrg);
+        console.log('>>>>>>>>>>>>>>>>> VisaAppContract::documentcheckpass <<<<<<<<<<<<<<<<< applicationNumber: ', applicationNumber);
 
         let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
 
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
+        //console.log('historycheck visaApplication fetched :', visaApplication);
 
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -124,7 +126,7 @@ class VisaApplicationContract extends Contract {
         }
 
         let mspid = ctx.clientIdentity.getMSPID(); //embassy
-        console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
+        //console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
 
         // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Police
         if (approvingOrgMSP !== mspid) {
@@ -133,13 +135,13 @@ class VisaApplicationContract extends Contract {
         }
 
         // Debug output to verify owner
-        console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
+        //console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
 
         //let dnName = ctx.clientIdentity.getOwner();
 
         // if the application submitter MSP matches the application owner MSP
         if (visaApplication.getOwnerMSP() === previousMSP) {
-            console.log('Owner matches submitter. History clearence given for visa application...');
+            console.log('Owner matches submitter. History clearence given for visa application: ', applicationNumber);
             //visaApplication.setOwner(dnName); 
             visaApplication.setOwnerMSP(mspid); // setting embassy
             visaApplication.setDocChkPassed();
@@ -165,13 +167,13 @@ class VisaApplicationContract extends Contract {
     */
     async documentcheckfail(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime) {
 
-        console.log('>>>>>>>>> vinit >>>>>>>> Inside documentcheckfail() :', submitterOrg);
+        console.log('>>>>>>>>>>>>>>>>> VisaAppContract::documentcheckfail <<<<<<<<<<<<<<<<< applicationNumber: ', applicationNumber);
 
         let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
 
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
+        //console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
 
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -192,7 +194,7 @@ class VisaApplicationContract extends Contract {
         }
 
         let mspid = ctx.clientIdentity.getMSPID(); //embassy
-        console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
+        //console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
 
         // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Police
         if (approvingOrgMSP !== mspid) {
@@ -201,13 +203,11 @@ class VisaApplicationContract extends Contract {
         }
 
         // Debug output to verify owner
-        console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
-
-        //let dnName = ctx.clientIdentity.getOwner();
+        //console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
 
         // if the application submitter MSP matches the application owner MSP
         if (visaApplication.getOwnerMSP() === previousMSP) {
-            console.log('Owner matches submitter. History clearence given for visa application...');
+            console.log('Owner matches submitter. History clearence given for visa application: ', applicationNumber);
             //visaApplication.setOwner(dnName); 
             visaApplication.setOwnerMSP(mspid); // setting embassy
             visaApplication.setDocChkFailed();
@@ -234,13 +234,13 @@ class VisaApplicationContract extends Contract {
     */
     async historycheckpass(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime) {
 
-        console.log('>>>>>>>>> vinit >>>>>>>> Inside historycheckpass() :', submitterOrg);
+        console.log('>>>>>>>>>>>>>>>>> VisaAppContract::historycheckpass <<<<<<<<<<<<<<<<< applicationNumber: ', applicationNumber);
 
         let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
 
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
+        //console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
 
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -255,7 +255,7 @@ class VisaApplicationContract extends Contract {
         }
 
         let mspid = ctx.clientIdentity.getMSPID(); //embassy
-        console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
+        //console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
 
         // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Police
         if (approvingOrgMSP !== mspid) {
@@ -264,13 +264,13 @@ class VisaApplicationContract extends Contract {
         }
 
         // Debug output to verify owner
-        console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
+        //console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
 
         //let dnName = ctx.clientIdentity.getOwner();
 
         // if the application submitter MSP matches the application owner MSP
         if (visaApplication.getOwnerMSP() === previousMSP) {
-            console.log('Owner matches submitter. History clearence given for visa application...');
+            console.log('Owner matches submitter. History clearence given for visa application: ', applicationNumber);
             //visaApplication.setOwner(dnName);
             visaApplication.setOwnerMSP(mspid); // setting embassy
             visaApplication.setHistoryChkPassed();
@@ -296,13 +296,13 @@ class VisaApplicationContract extends Contract {
     */
         async historycheckfail(ctx, submitterOrg, applicationNumber, approvingOrgMSP, previousMSP, approvingDateTime) {
 
-            console.log('>>>>>>>>> vinit >>>>>>>> Inside historycheckfail() :', submitterOrg);
+            console.log('>>>>>>>>>>>>>>>>> VisaAppContract::historycheckfail <<<<<<<<<<<<<<<<< applicationNumber: ', applicationNumber);
 
             let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
 
             let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-            console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
+            //console.log('>>>>>>>>> vinit >>>>>>>> historycheck visaApplication fetched :', visaApplication);
 
             // Check application is not already in final decision i.e. approved/declined
             if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -323,7 +323,7 @@ class VisaApplicationContract extends Contract {
             }
 
             let mspid = ctx.clientIdentity.getMSPID(); //embassy
-            console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
+            //console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (police) :', mspid);
 
             // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Police
             if (approvingOrgMSP !== mspid) {
@@ -338,7 +338,7 @@ class VisaApplicationContract extends Contract {
 
             // if the application submitter MSP matches the application owner MSP
             if (visaApplication.getOwnerMSP() === previousMSP) {
-                console.log('Owner matches submitter. History clearence given for visa application...');
+                console.log('Owner matches submitter. History clearence given for visa application: ', applicationNumber);
                 //visaApplication.setOwner(dnName);
                 visaApplication.setOwnerMSP(mspid); // setting embassy
                 visaApplication.setHistoryChkFailed();
@@ -364,13 +364,13 @@ class VisaApplicationContract extends Contract {
     */
     async approve(ctx, submitterOrg, applicationNumber, approvingMSP, previousMSP, approvingDateTime) {
 
-        console.log('>>>>>>>>> vinit >>>>>>>> Inside approve() :', submitterOrg);
+        console.log('>>>>>>>>>>>>>>>>> VisaAppContract::approve <<<<<<<<<<<<<<<<< applicationNumber: ', applicationNumber);
 
         let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
 
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        console.log('>>>>>>>>> vinit >>>>>>>> visaApplication fetched :', visaApplication);
+        //console.log('>>>>>>>>> vinit >>>>>>>> visaApplication fetched :', visaApplication);
 
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -391,7 +391,7 @@ class VisaApplicationContract extends Contract {
         }
 
         let mspid = ctx.clientIdentity.getMSPID(); //embassy
-        console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (embassy) :', mspid);
+        //console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (embassy) :', mspid);
 
         // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Embassy
         if (approvingMSP !== mspid) {
@@ -409,10 +409,9 @@ class VisaApplicationContract extends Contract {
             throw new Error('\nBackground history check is still pending for Visa application ' + submitterOrg + applicationNumber + ' Police org needs to confirm the transaction. ');
         }
 
-
         // if the application submitter MSP matches the application owner MSP
         if (visaApplication.getOwnerMSP() === previousMSP) {
-            console.log('Owner matches submitter. Approving visa application...');
+            console.log('Owner matches submitter. Approving visa application: ', applicationNumber);
             //visaApplication.setOwner(dnName);
             visaApplication.setOwnerMSP(mspid); // setting embassy
             visaApplication.setApproved();
@@ -438,13 +437,13 @@ class VisaApplicationContract extends Contract {
     */
     async decline(ctx, submitterOrg, applicationNumber, approvingMSP, previousMSP, approvingDateTime) {
 
-        console.log('>>>>>>>>> vinit >>>>>>>> Inside decline() :', submitterOrg);
+        console.log('>>>>>>>>>>>>>>>>> VisaAppContract::decline <<<<<<<<<<<<<<<<< applicationNumber: ', applicationNumber);
 
         let applicationKey = VisaApplication.makeKey([submitterOrg, applicationNumber]);
 
         let visaApplication = await ctx.visaApplicationList.getVisaApplication(applicationKey);
 
-        console.log('>>>>>>>>> vinit >>>>>>>> visaApplication fetched :', visaApplication);
+        //console.log('>>>>>>>>> vinit >>>>>>>> visaApplication fetched :', visaApplication);
 
         // Check application is not already in final decision i.e. approved/declined
         if (visaApplication.isApproved() || visaApplication.isDeclined()) {
@@ -453,7 +452,7 @@ class VisaApplicationContract extends Contract {
         }
 
         let mspid = ctx.clientIdentity.getMSPID(); //embassy
-        console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (embassy) :', mspid);
+        //console.log('>>>>>>>>> vinit >>>>>>>> MSPid for approving org (embassy) :', mspid);
 
         // Validate approver's MSP matches the invoking entity MSP id - can only approve if you are the approving org. i.e. Embassy
         if (approvingMSP !== mspid) {
@@ -462,13 +461,13 @@ class VisaApplicationContract extends Contract {
         }
 
         // Debug output to verify owner
-        console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
+        //console.log('Current owner of application ' + submitterOrg + applicationNumber + ':', visaApplication.getOwner());
 
         //let dnName = ctx.clientIdentity.getOwner();
 
         // if the application submitter MSP matches the application owner MSP
         if (visaApplication.getOwnerMSP() === previousMSP) {
-            console.log('Declining visa application...');
+            console.log('Declining visa application: ', applicationNumber);
             //visaApplication.setOwner(dnName);
             visaApplication.setOwnerMSP(mspid); // setting embassy
             visaApplication.setDeclined();
