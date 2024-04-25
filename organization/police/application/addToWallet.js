@@ -19,7 +19,7 @@ async function main() {
     try {
 
         // A wallet stores a collection of identities
-        const wallet = await Wallets.newFileSystemWallet('../identity/user/vinit/wallet');
+        const wallet = await Wallets.newFileSystemWallet('../identity/user/jackCop/wallet');
 
         // Identity to credentials to be stored in the wallet
         const credPath = path.join(fixtures, '/organizations/peerOrganizations/org3.example.com/users/User1@org3.example.com');
@@ -47,7 +47,7 @@ async function main() {
 }
 
 main().then(() => {
-    console.log('done');
+    console.log('User logged-in: JackCop (Police)');
 }).catch((e) => {
     console.log(e);
     console.log(e.stack);

@@ -47,7 +47,7 @@ async function main() {
 }
 
 main().then(() => {
-    console.log('done');
+    console.log('User logged-in: MarkAgent (Visaworld)');
 }).catch((e) => {
     console.log(e);
     console.log(e.stack);
