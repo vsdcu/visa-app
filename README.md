@@ -97,3 +97,53 @@ Bash scripts have been provided for ease of operations:
 cd /Users/vinit/go/src/visa-app
 ./stop-visanet-network.sh
 ```
+
+### Troubleshooting tips
+Sometimes following error pops-up while starting or restarting the visanet network. This seems related to the cleanup of existing resources/environment.
+
+Unfortunately, I don't know the exact reason of this intermittent failure as of now. However, executing the `start-visanet-network.sh` script again seems resolving this issue.
+Rarely, you might need to run the script a couple of times. 
+
+```
+2024-05-01 21:36:32.614 IST 0004 INFO [common.tools.configtxgen.localconfig] Load -> Loaded configuration: /Users/vinit/go/src/visa-app/test-network/configtx/configtx.yaml
+2024-05-01 21:36:32.615 IST 0005 PANI [common.tools.configtxgen] func1 -> proto: Marshal called with nil
+panic: proto: Marshal called with nil [recovered]
+	panic: proto: Marshal called with nil
+
+goroutine 1 [running]:
+go.uber.org/zap/zapcore.(*CheckedEntry).Write(0xc00010c300, {0x0, 0x0, 0x0})
+	/home/runner/work/fabric/fabric/vendor/go.uber.org/zap/zapcore/entry.go:234 +0x49b
+go.uber.org/zap.(*SugaredLogger).log(0xc00000e218, 0x4, {0xc0001dcec0?, 0x111f512?}, {0x0?, 0xc0001dcea0?, 0xc000155790?}, {0x0, 0x0, 0x0})
+	/home/runner/work/fabric/fabric/vendor/go.uber.org/zap/sugar.go:234 +0x13b
+go.uber.org/zap.(*SugaredLogger).Panicf(...)
+	/home/runner/work/fabric/fabric/vendor/go.uber.org/zap/sugar.go:159
+github.com/hyperledger/fabric/common/flogging.(*FabricLogger).Panic(0xc00000e220?, {0xc0000b7818?, 0x162403a?, 0x16?})
+	/home/runner/work/fabric/fabric/common/flogging/zap.go:73 +0x5d
+main.main.func1()
+	/home/runner/work/fabric/fabric/cmd/configtxgen/main.go:261 +0x1cc
+panic({0x1556320, 0xc00018a390})
+	/opt/hostedtoolcache/go/1.18.10/x64/src/runtime/panic.go:838 +0x207
+github.com/hyperledger/fabric/protoutil.MarshalOrPanic(...)
+	/home/runner/work/fabric/fabric/protoutil/commonutils.go:26
+github.com/hyperledger/fabric/internal/configtxgen/encoder.addValue(0xc000188640, {0x16f9860, 0xc00014fd60}, {0x1618e46, 0x6})
+	/home/runner/work/fabric/fabric/internal/configtxgen/encoder/encoder.go:59 +0x14c
+github.com/hyperledger/fabric/internal/configtxgen/encoder.NewConsortiumOrgGroup(0xc0001d59e0)
+	/home/runner/work/fabric/fabric/internal/configtxgen/encoder/encoder.go:246 +0x19b
+github.com/hyperledger/fabric/internal/configtxgen/encoder.NewConsortiumGroup(0xc00000dfe0)
+	/home/runner/work/fabric/fabric/internal/configtxgen/encoder/encoder.go:373 +0x111
+github.com/hyperledger/fabric/internal/configtxgen/encoder.NewConsortiumsGroup(0x1563700?)
+	/home/runner/work/fabric/fabric/internal/configtxgen/encoder/encoder.go:355 +0x170
+github.com/hyperledger/fabric/internal/configtxgen/encoder.NewChannelGroup(0xc0000a1bc0)
+	/home/runner/work/fabric/fabric/internal/configtxgen/encoder/encoder.go:168 +0x5e5
+github.com/hyperledger/fabric/internal/configtxgen/encoder.NewBootstrapper(0x16?)
+	/home/runner/work/fabric/fabric/internal/configtxgen/encoder/encoder.go:595 +0xa5
+main.doOutputBlock(0xc0000a1bc0, {0x2060b03d6, 0xe}, {0x2060b03f2, 0x24})
+	/home/runner/work/fabric/fabric/cmd/configtxgen/main.go:35 +0x45
+main.main()
+	/home/runner/work/fabric/fabric/cmd/configtxgen/main.go:296 +0x9b2
++ res=2
+Failed to generate orderer genesis block...
+
+```
+
+

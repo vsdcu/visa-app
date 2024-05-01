@@ -107,13 +107,18 @@ peer lifecycle chaincode commit -o localhost:7050 \
                                 --sequence 1 \
                                 --tls --cafile "$ORDERER_CA" --waitForEvent
 
+# Instantiating chaincode visacontract
+
 echo "Step 23: Invoking chaincode..."
 peer chaincode invoke -o localhost:7050  --ordererTLSHostnameOverride orderer.example.com \
                                 --peerAddresses localhost:7051 --tlsRootCertFiles "${PEER0_ORG1_CA}" \
                                 --peerAddresses localhost:9051 --tlsRootCertFiles "${PEER0_ORG2_CA}" \
+                                --peerAddresses localhost:11051 --tlsRootCertFiles "${PEER0_ORG3_CA}" \
                                 --channelID visachannel --name visaappcontract \
                                 -c '{"Args":["org.visanet.visaapp:instantiate"]}' ${PEER_ADDRESS_ORG1} ${PEER_ADDRESS_ORG2} \
                                 --tls --cafile "$ORDERER_CA" --waitForEvent
+
+# Printing  chaincode visacontract abi for quick reference
 
 echo "Step 24: Printing chaincode metadata..."
 peer chaincode query -o localhost:7050  --ordererTLSHostnameOverride orderer.example.com \
@@ -122,6 +127,8 @@ peer chaincode query -o localhost:7050  --ordererTLSHostnameOverride orderer.exa
                                         -c '{"Args":["org.hyperledger.fabric:GetMetadata"]}' \
                                         --peerAddresses localhost:9051 --tlsRootCertFiles "${PEER0_ORG2_CA}" \
                                         --tls --cafile "$ORDERER_CA" | jq '.' -C
+
+# Starting Fabric monitoring thread
 
 echo "Step 25: Starting logs monitoring thread..."
 cd /Users/vinit/go/src/visa-app/organization/visaworld/configuration/cli
