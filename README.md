@@ -99,7 +99,7 @@ cd /Users/vinit/go/src/visa-app
 ```
 
 ### Troubleshooting tips
-Sometimes following error pops-up while starting or restarting the visanet network. This seems related to the cleanup of existing resources/environment.
+1. Sometimes following error pops-up while starting or restarting the visanet network. This seems related to the cleanup of existing resources/environment.
 
 Unfortunately, I don't know the exact reason of this intermittent failure as of now. However, executing the `start-visanet-network.sh` script again seems resolving this issue.
 Rarely, you might need to run the script a couple of times. 
@@ -146,4 +146,17 @@ Failed to generate orderer genesis block...
 
 ```
 
+2. For Mac (hack for install chaincode)
 
+If you get following error while installing chaincode
+
+bash-3.2$ peer lifecycle chaincode install cp.tar.gz
+```
+Error: chaincode install failed with status: 500 - failed to invoke backing implementation of 'InstallChaincode': could not build chaincode: docker build failed: docker image build failed: docker build failed: Failed to pull hyperledger/fabric-nodeenv:2.4: no matching manifest for linux/arm64/v8 in the manifest list entries
+```
+
+You might need to pull the latest image as required architecture image wasn’t available for the version.
+I pulled the latest and tagged it with the required version.
+docker tag hyperledger/fabric-nodeenv:latest hyperledger/fabric-nodeenv:2.4
+
+All images repo - https://hub.docker.com/r/hyperledger/fabric-nodeenv/tags?page=&page_size=&ordering=&name=
