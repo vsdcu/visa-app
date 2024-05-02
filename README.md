@@ -5,18 +5,18 @@
 ## Mission Statement:
 Our mission is to develop VisaChain, a cutting-edge blockchain-based visa processing system, to streamline the visa application process, enhance security and privacy, and ensure compliance with regulatory requirements. By providing a trusted platform for collaboration among stakeholders, VisaChain aims to simplify visa processing, promote tourism and business travel, and facilitate cross-border mobility in a rapidly evolving global landscape.
 
-## Test Network
+## Visanet Network
 
 The Visa application uses an underlying test network based on the [Fabric test network](test-network) in the Hyperledger Fabric's samples repository, which provides a Docker Compose-based test network. For reference, see the [test network tutorial](https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html).
 
-The existing network test network with two Organization peers and an ordering service node has been extended to include one more organization, Org3. This network now consists of 3 Orgs representing 3 main entities involved in a typical visa processing use case: Embassy, Police, and Visa Agency (Visaworld).
+The existing network test network with two Organization peers and an ordering service node has been extended to include one more organization, Org3. This network now consists of 3 Orgs representing 3 main entities involved in a typical visa processing use case: `Embassy`, `Police` and `Visa Agency (Visaworld)`.
 
 Bash scripts have been provided for ease of operations:
-1. To bring up the basic 2 org network with 2 peers, 2 CAs, 2 CouchDBs, 1 orderer, and a channel:
+1. To bring up the initial visanet with `2 orgs`, `2 peers`, `2 CAs`, `2 CouchDBs`, `1 orderer` and a dedicated channel `visachannel`:
     > `start-visanet-network.sh`
 2. To add another org in the existing network and set up required steps:
     > `add-org3.sh`
-3. To run the lifecycle steps required for the chaincode to Package, Install, Approve, and Commit to Fabric:
+3. To run the lifecycle steps required for the chaincode to `Package`, `Install`, `Approve` and `Commit` to Fabric:
     > `deploy-chaincode.sh`
 4. To print the chaincode and network logs to console:
     > `monitor-logs.sh`
@@ -50,7 +50,7 @@ Bash scripts have been provided for ease of operations:
 
 ### Running the Application - Client Interactions
 
-#### By org VisaWorld - on behalf of their customers
+#### As org VisaWorld - on behalf of their customers
 1. Initiating a new application (run in a new bash shell):
     ```
     cd /Users/vinit/go/src/visa-app/organization/visaworld
@@ -60,7 +60,7 @@ Bash scripts have been provided for ease of operations:
     node visaApplication.js
     ```
 
-#### By org Police - to verify the new applications
+#### As org Police - to verify the new applications
 2. Initiating a background and history check and updating the visa application (run in a new bash shell):
     ```
     cd /Users/vinit/go/src/visa-app/organization/police
@@ -71,7 +71,7 @@ Bash scripts have been provided for ease of operations:
     node visaClearencePass.js
     ```
 
-#### By org Embassy - to approve the applications having history clearance by Police org
+#### As org Embassy - to approve the applications having history clearance by Police org
 3. Initiating a transaction to approve and updating the visa application (run in a new bash shell):
     ```
     cd /Users/vinit/go/src/visa-app/organization/embassy
