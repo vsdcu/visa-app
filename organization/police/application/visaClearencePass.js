@@ -27,7 +27,7 @@ const visaapp = require('../contract/lib/visaapp.js');
 async function main() {
 
   // A wallet stores a collection of identities for use
-  const wallet = await Wallets.newFileSystemWallet('../identity/user/vinit/wallet');
+  const wallet = await Wallets.newFileSystemWallet('../identity/user/jackCop/wallet');
 
 
   // A gateway defines the peers used to access Fabric networks
